@@ -2,8 +2,9 @@
 #include <AccelStepper.h>
 
 // --- GLOBAL CONFIGURATION ---
-const int MAX_SPEED    = 800;  // Increased slightly for smoother jogging
-const int ACCEL_RATE   = 200;  // Crucial for the 10:1 reduction mass
+const int MAX_SPEED    = 800;  
+const int ACCEL_RATE   = 200;  // Smooth acceleration to prevent stalling on start
+const int DECEL_RATE   = 4000; // Massive acceleration for a rapid, snappy stop
 
 // --- UART DRIVER CONFIGURATION (Drivers 1 & 2 Only) ---
 const int RMS_CURRENT  = 1000; 
@@ -146,14 +147,16 @@ void processCommand(char* cmd) {
     int idx = driverNum - 1;
 
     if (cmdType == 'J' || cmdType == 'j') {
-      // Jog command. Give it a massive target in the specified direction.
-      // 100,000,000 steps is effectively infinite for a jogging operation.
+      // RESET to normal, smooth acceleration for starting
+      steppers[idx]->setAcceleration(ACCEL_RATE);
+      
       long target = (param > 0) ? 100000000 : -100000000;
       steppers[idx]->move(target); 
       Serial.print("-> Jogging Driver "); Serial.println(driverNum);
     } 
     else if (cmdType == 'S' || cmdType == 's') {
-      // Stop command. Calculates deceleration to a smooth halt.
+      // TEMPORARILY CRANK acceleration to slam the brakes
+      steppers[idx]->setAcceleration(DECEL_RATE);
       steppers[idx]->stop();
       Serial.print("-> Stopping Driver "); Serial.println(driverNum);
     }
@@ -161,7 +164,10 @@ void processCommand(char* cmd) {
   // 2. Fallback to Legacy format (e.g., "1 200")
   else if (sscanf(cmd, "%d %ld", &driverNum, &param) == 2) {
     if (driverNum >= 1 && driverNum <= 4) {
+      // Ensure we are using standard smooth acceleration for legacy moves
+      steppers[driverNum - 1]->setAcceleration(ACCEL_RATE);
       steppers[driverNum - 1]->move(param);
+      
       Serial.print("-> Legacy Move: Driver "); Serial.print(driverNum);
       Serial.print(" moving "); Serial.println(param);
     }

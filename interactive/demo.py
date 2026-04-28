@@ -10,15 +10,16 @@ import sys
 BAUD_RATE = 115200
 
 # Mapping physical keys to specific axes and directions.
+# Only the "name" value is translated for the GUI.
 KEY_MAPPINGS = {
-    pygame.K_w: {"driver": 1, "dir": -1, "name": "Shoulder UP"},
-    pygame.K_s: {"driver": 1, "dir": 1,  "name": "Shoulder DOWN"},
-    pygame.K_UP:   {"driver": 2, "dir": -1, "name": "Elbow UP"},
-    pygame.K_DOWN: {"driver": 2, "dir": 1,  "name": "Elbow DOWN"},
-    pygame.K_a: {"driver": 3, "dir": -1, "name": "Base LEFT"},
-    pygame.K_d: {"driver": 3, "dir": 1,  "name": "Base RIGHT"},
-    pygame.K_q: {"driver": 4, "dir": -1, "name": "Wrist UP"},
-    pygame.K_e: {"driver": 4, "dir": 1,  "name": "Wrist DOWN"},
+    pygame.K_w: {"driver": 1, "dir": -1, "name": "Épaule HAUT"},
+    pygame.K_s: {"driver": 1, "dir": 1,  "name": "Épaule BAS"},
+    pygame.K_UP:   {"driver": 2, "dir": -1, "name": "Coude HAUT"},
+    pygame.K_DOWN: {"driver": 2, "dir": 1,  "name": "Coude BAS"},
+    pygame.K_a: {"driver": 3, "dir": -1, "name": "Base GAUCHE"},
+    pygame.K_d: {"driver": 3, "dir": 1,  "name": "Base DROITE"},
+    pygame.K_q: {"driver": 4, "dir": -1, "name": "Poignet HAUT"},
+    pygame.K_e: {"driver": 4, "dir": 1,  "name": "Poignet BAS"},
 }
 
 # ==========================================
@@ -30,10 +31,7 @@ def get_available_ports():
     valid_ports = []
     
     for port in ports:
-        # Filter for typical USB-to-Serial identifiers
-        # Linux: ttyUSB, ttyACM | Windows: COM | Mac: cu.usb
         if "USB" in port.device or "ACM" in port.device or "COM" in port.device or "cu.usb" in port.device:
-            # We can also append the port description to make it look nicer in the GUI
             valid_ports.append(port.device)
             
     return valid_ports
@@ -54,14 +52,16 @@ def send_command(ser, cmd_string):
 # ==========================================
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((500, 400))
-    pygame.display.set_caption("Robotic Arm Control Terminal")
+    # Increased window size to accommodate 2x font sizes
+    screen = pygame.display.set_mode((1500, 1000))
+    pygame.display.set_caption("Terminal de Contrôle du Bras Robotique")
     
-    font_large = pygame.font.SysFont(None, 36)
-    font_small = pygame.font.SysFont(None, 24)
+    # Fonts are 2x larger
+    font_large = pygame.font.SysFont(None, 108)
+    font_small = pygame.font.SysFont(None, 72)
 
     # State Variables
-    app_state = "MENU" # Can be "MENU" or "CONTROL"
+    app_state = "MENU"
     selected_port = None
     ser = None
     available_ports = get_available_ports()
@@ -89,7 +89,6 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if app_state == "CONTROL":
-                        # Go back to menu and disconnect
                         app_state = "MENU"
                         if ser:
                             ser.close()
@@ -98,7 +97,6 @@ def main():
                     else:
                         running = False
                         
-                # Handle robot control keys only if connected
                 if app_state == "CONTROL" and ser is not None and ser.is_open:
                     if event.key in KEY_MAPPINGS and event.key not in active_keys:
                         active_keys.add(event.key)
@@ -106,7 +104,7 @@ def main():
                         success = send_command(ser, f"J {mapping['driver']} {mapping['dir']}")
                         if not success:
                             ser.close()
-                            ser = None # Trigger reconnect logic
+                            ser = None 
                         
             elif event.type == pygame.KEYUP:
                 if app_state == "CONTROL" and event.key in active_keys:
@@ -121,41 +119,41 @@ def main():
         if app_state == "MENU":
             screen.fill((30, 30, 40))
             
-            title = font_large.render("Select ESP32 Serial Port", True, (255, 255, 255))
+            title = font_large.render("Sélectionnez le Port Série ESP32", True, (255, 255, 255))
             screen.blit(title, (20, 20))
 
-            # Draw Refresh Button
-            refresh_rect = pygame.Rect(350, 20, 120, 30)
+            # Draw Refresh Button (scaled up)
+            refresh_rect = pygame.Rect(950, 20, 200, 60)
             pygame.draw.rect(screen, (100, 100, 150), refresh_rect, border_radius=5)
-            screen.blit(font_small.render("Refresh", True, (255,255,255)), (375, 26))
+            screen.blit(font_small.render("Actualiser", True, (255,255,255)), (970, 32))
+            
             if click and refresh_rect.collidepoint(mouse_pos):
                 available_ports = get_available_ports()
 
             # Draw Port List
-            y_offset = 80
+            y_offset = 120
             if not available_ports:
-                screen.blit(font_small.render("No ports found. Plug in ESP32 and click Refresh.", True, (200, 100, 100)), (20, y_offset))
+                screen.blit(font_small.render("Aucun port trouvé. Branchez l'ESP32 et cliquez sur Actualiser.", True, (200, 100, 100)), (20, y_offset))
             else:
                 for port in available_ports:
-                    port_rect = pygame.Rect(20, y_offset, 450, 40)
+                    port_rect = pygame.Rect(20, y_offset, 1100, 80)
                     color = (70, 70, 90) if port_rect.collidepoint(mouse_pos) else (50, 50, 70)
                     pygame.draw.rect(screen, color, port_rect, border_radius=5)
-                    screen.blit(font_large.render(port, True, (200, 255, 200)), (35, y_offset + 8))
+                    screen.blit(font_large.render(port, True, (200, 255, 200)), (40, y_offset + 15))
                     
                     if click and port_rect.collidepoint(mouse_pos):
                         selected_port = port
                         app_state = "CONTROL"
-                        # Try initial connection
                         try:
                             ser = serial.Serial(selected_port, BAUD_RATE, timeout=0.1)
-                            time.sleep(1) # Give ESP32 a moment to boot
+                            time.sleep(1) 
                         except Exception as e:
-                            ser = None # Will auto-reconnect in CONTROL loop
+                            ser = None 
                     
-                    y_offset += 50
+                    y_offset += 100
 
-            instruction = font_small.render("Press ESC to exit.", True, (150, 150, 150))
-            screen.blit(instruction, (20, 360))
+            instruction = font_small.render("Appuyez sur ÉCHAP pour quitter.", True, (150, 150, 150))
+            screen.blit(instruction, (20, 720))
 
         # ---------------------------------------------------------
         # STATE: CONTROL & AUTO-RECONNECT
@@ -163,54 +161,81 @@ def main():
         elif app_state == "CONTROL":
             screen.fill((30, 30, 30))
             
-            # Read Serial Data (and catch physical disconnects)
             if ser is not None and ser.is_open:
                 try:
                     while ser.in_waiting > 0:
                         line = ser.readline().decode('utf-8', errors='ignore').strip()
                         if line:
-                            print(f"[ESP32] {line}")
+                            print(f"[ESP32] {line}") # Kept English in console
                 except (serial.SerialException, OSError):
-                    # Cable was likely unplugged
-                    print("CONNECTION LOST!")
+                    print("CONNECTION LOST!") # Kept English in console
                     ser.close()
                     ser = None
-                    active_keys.clear() # Reset keys so robot doesn't run away on reconnect
+                    active_keys.clear() 
 
-            # Auto-Reconnect Logic
             if ser is None or not ser.is_open:
-                status_text = font_large.render(f"DISCONNECTED from {selected_port}", True, (255, 100, 100))
-                sub_text = font_small.render("Attempting auto-reconnect... Please plug in USB.", True, (200, 200, 200))
+                status_text = font_large.render(f"DÉCONNECTÉ de {selected_port}", True, (255, 100, 100))
+                sub_text = font_small.render("Tentative de reconnexion auto... Veuillez brancher l'USB.", True, (200, 200, 200))
                 
-                # Try to reconnect every 1 second
                 if current_time - last_reconnect_time > 1.0:
                     last_reconnect_time = current_time
                     try:
                         ser = serial.Serial(selected_port, BAUD_RATE, timeout=0.1)
                         print(f"Reconnected to {selected_port}!")
-                        time.sleep(1) # Important: Wait for ESP32 boot cycle
+                        time.sleep(1) 
                     except:
-                        pass # Still waiting
+                        pass 
             else:
-                status_text = font_large.render(f"CONNECTED: {selected_port}", True, (100, 255, 100))
-                sub_text = font_small.render("Controls active. Focus window to jog.", True, (200, 200, 200))
+                status_text = font_large.render(f"CONNECTÉ : {selected_port}", True, (100, 255, 100))
+                sub_text = font_small.render("Contrôles actifs. Mettez la fenêtre au premier plan.", True, (200, 200, 200))
                 
             screen.blit(status_text, (20, 20))
-            screen.blit(sub_text, (20, 50))
+            screen.blit(sub_text, (20, 90))
             
-            # Display active keys
-            y_offset = 100
-            for key in active_keys:
-                action_text = font_large.render(f"Jogging: {KEY_MAPPINGS[key]['name']}", True, (100, 200, 255))
-                screen.blit(action_text, (20, y_offset))
-                y_offset += 40
+            # --- Draw Key Mapping Map (Left Side) ---
+            map_title = font_small.render("Assignation des Touches :", True, (255, 255, 100))
+            screen.blit(map_title, (20, 180))
+            
+            # Split data into (Keys, Description) so we can color them differently
+            controls_data = [
+                ("W / S", ": Épaule (Axe 1)"),
+                ("HAUT / BAS", ": Coude (Axe 2)"),
+                ("A / D", ": Base G/D (Axe 3)"),
+                ("Q / E", ": Poignet (Axe 4)")
+            ]
+            
+            map_y = 240
+            for keys_text, desc_text in controls_data:
+                # 1. Render Keys in Bright Yellow
+                keys_surface = font_small.render(keys_text, True, (255, 255, 0))
+                screen.blit(keys_surface, (20, map_y))
+                
+                # 2. Render Description in Gray (Aligned to an X offset of 280)
+                desc_surface = font_small.render(desc_text, True, (180, 180, 180))
+                screen.blit(desc_surface, (280, map_y))
+                
+                map_y += 50
 
-            instruction = font_small.render("Press ESC to Disconnect and return to Menu.", True, (150, 150, 150))
-            screen.blit(instruction, (20, 360))
+            # --- Draw Active Keys (Right Side) ---
+            active_title = font_small.render("Actuellement Actif :", True, (255, 255, 100))
+            screen.blit(active_title, (700, 180))
+
+            y_offset = 240
+            if not active_keys:
+                idle_text = font_small.render("En attente...", True, (100, 100, 100))
+                screen.blit(idle_text, (700, y_offset))
+            else:
+                for key in active_keys:
+                    action_text = font_large.render(f"{KEY_MAPPINGS[key]['name']}", True, (100, 200, 255))
+                    screen.blit(action_text, (700, y_offset))
+                    y_offset += 70
+
+            instruction = font_small.render("Appuyez sur ÉCHAP pour vous déconnecter et retourner au Menu.", True, (150, 150, 150))
+            screen.blit(instruction, (20, 720))
 
         # Update display
         pygame.display.flip()
-        time.sleep(0.01) # Keep CPU usage low
+        time.sleep(0.01) 
 
     # Cleanup before closing
     if ser is not None and ser.is_open:
