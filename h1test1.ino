@@ -3,8 +3,8 @@
 
 // --- GLOBAL CONFIGURATION ---
 const int MAX_SPEED    = 800;  
-const int ACCEL_RATE   = 200;  // Smooth acceleration to prevent stalling on start
-const int DECEL_RATE   = 4000; // Massive acceleration for a rapid, snappy stop
+const int ACCEL_RATE   = 280;  // Smooth acceleration to prevent stalling on start
+const int DECEL_RATE   = 2000; // Massive acceleration for a rapid, snappy stop
 
 // --- UART DRIVER CONFIGURATION (Drivers 1 & 2 Only) ---
 const int RMS_CURRENT  = 1000; 
