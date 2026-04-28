@@ -15,34 +15,34 @@ const int MICROSTEPS   = 16;   // 1/16 microstepping
 // --- PIN DEFINITIONS (ESP32-S3 Example) ---
 // ==========================================
 
-// Driver 1 (UART Enabled)
-const int EN_PIN_1   = 2;
+// Driver 1 (UART Enabled) (bottom right)
+const int EN_PIN_1   = 3;
 const int STEP_PIN_1 = 1;
-const int DIR_PIN_1  = 3; 
+const int DIR_PIN_1  = 2; 
 const int UART_PIN_1 = 4; // Uses Serial1
 
-// Driver 2 (UART Enabled)
-const int EN_PIN_2   = 5;
-const int STEP_PIN_2 = 6;
-const int DIR_PIN_2  = 7; 
-const int UART_PIN_2 = 8; // Uses Serial2
+// Driver 2 (UART Enabled) (top right)
+const int EN_PIN_2   = 48;
+const int STEP_PIN_2 = 45;
+const int DIR_PIN_2  = 46; 
+const int UART_PIN_2 = 47; // Uses Serial2
 
-// Driver 3 (Standalone - No UART)
-const int EN_PIN_3   = 9;
-const int STEP_PIN_3 = 10;
-const int DIR_PIN_3  = 11; 
+// Driver 3 (Standalone - No UART) (bottom left)
+const int EN_PIN_3   = 34;
+const int STEP_PIN_3 = 33;
+const int DIR_PIN_3  = 6; 
 
-// Driver 4 (Standalone - No UART)
-const int EN_PIN_4   = 12;
-const int STEP_PIN_4 = 13;
-const int DIR_PIN_4  = 14; 
+// Driver 4 (Standalone - No UART) (top left)
+const int EN_PIN_4   = 26;
+const int STEP_PIN_4 = 5;
+const int DIR_PIN_4  = 7; 
 
 // ==========================================
 // --- OBJECT INSTANTIATIONS ---
 // ==========================================
 
 // UART Drivers (TMC2209)
-TMC2209Stepper driver1(&Serial1, R_SENSE, DRIVER_ADDRESS);
+46TMC2209Stepper driver1(&Serial1, R_SENSE, DRIVER_ADDRESS);
 TMC2209Stepper driver2(&Serial2, R_SENSE, DRIVER_ADDRESS);
 
 // AccelStepper Objects
