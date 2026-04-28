@@ -42,7 +42,7 @@ const int DIR_PIN_4  = 7;
 // ==========================================
 
 // UART Drivers (TMC2209)
-46TMC2209Stepper driver1(&Serial1, R_SENSE, DRIVER_ADDRESS);
+TMC2209Stepper driver1(&Serial1, R_SENSE, DRIVER_ADDRESS);
 TMC2209Stepper driver2(&Serial2, R_SENSE, DRIVER_ADDRESS);
 
 // AccelStepper Objects
