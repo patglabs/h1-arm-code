@@ -2,8 +2,8 @@
 #include <AccelStepper.h>
 
 // --- GLOBAL CONFIGURATION ---
-const int MAX_SPEED    = 2000; 
-const int ACCEL_RATE   = 1000;
+const int MAX_SPEED    = 200; 
+const int ACCEL_RATE   = 100;
 
 // --- UART DRIVER CONFIGURATION (Drivers 1 & 2 Only) ---
 const int RMS_CURRENT  = 1000; // 1000mA for high torque
@@ -17,9 +17,9 @@ const int MICROSTEPS   = 16;   // 1/16 microstepping
 
 // Driver 1 (UART Enabled) (bottom right)
 const int EN_PIN_1   = 3;
-const int STEP_PIN_1 = 1;
+const int STEP_PIN_1 = 42; // was 1
 const int DIR_PIN_1  = 2; 
-const int UART_PIN_1 = 4; // Uses Serial1
+const int UART_PIN_1 = 4; // Uses Serial1 was 4
 
 // Driver 2 (UART Enabled) (top right)
 const int EN_PIN_2   = 48;
