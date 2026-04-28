@@ -15,24 +15,24 @@ const int MICROSTEPS   = 16;   // 1/16 microstepping
 // --- PIN DEFINITIONS (ESP32-S3 Example) ---
 // ==========================================
 
-// Driver 1 (UART Enabled) (bottom right)
+// Driver 1 (UART Enabled) (bottom right) SHOULDER 
 const int EN_PIN_1   = 3;
 const int STEP_PIN_1 = 42; // was 1
 const int DIR_PIN_1  = 2; 
 const int UART_PIN_1 = 4; // Uses Serial1 was 4
 
-// Driver 2 (UART Enabled) (top right)
+// Driver 2 (UART Enabled) (top right) ELBOW
 const int EN_PIN_2   = 48;
 const int STEP_PIN_2 = 45;
 const int DIR_PIN_2  = 46; 
 const int UART_PIN_2 = 47; // Uses Serial2
 
-// Driver 3 (Standalone - No UART) (bottom left)
+// Driver 3 (Standalone - No UART) (bottom left) LEFT RIGHT
 const int EN_PIN_3   = 34;
 const int STEP_PIN_3 = 33;
 const int DIR_PIN_3  = 6; 
 
-// Driver 4 (Standalone - No UART) (top left)
+// Driver 4 (Standalone - No UART) (top left) WRIST
 const int EN_PIN_4   = 26;
 const int STEP_PIN_4 = 5;
 const int DIR_PIN_4  = 7; 
